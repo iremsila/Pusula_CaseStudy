@@ -14,9 +14,7 @@ import com.dijitalgaraj.study.models.loadPlacesFromJson
 import com.dijitalgaraj.study.ui.city.adapter.CityAdapter
 import com.dijitalgaraj.study.ui.district.DistrictFragmentArgs
 import com.dijitalgaraj.study.utils.extensions.OnTextChangeListener
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -30,7 +28,6 @@ class CityFragment : BaseFragment<CityViewModel, CityListFragmentBinding>(
     private var textChangeListener: OnTextChangeListener? = null
 
     override fun init() {
-        super.init()
         readData()
         setupEditTextListener()
         setupClickListeners()
@@ -44,9 +41,15 @@ class CityFragment : BaseFragment<CityViewModel, CityListFragmentBinding>(
     }
 
     private fun readData() {
-        viewModel.baseCityList = loadPlacesFromJson(requireContext())
-        setupAdapter()
+        viewLifecycleOwner.lifecycleScope.launch {
+            val places = withContext(Dispatchers.IO) {
+                loadPlacesFromJson(requireContext())
+            }
+            viewModel.baseCityList = places
+            setupAdapter()
+        }
     }
+
 
     private fun setupEditTextListener() {
         binding.edtSearchBar.addTextChangedListener { text ->
@@ -60,13 +63,10 @@ class CityFragment : BaseFragment<CityViewModel, CityListFragmentBinding>(
         }
     }
 
-
     private fun setupAdapter() {
         cityListAdapter = CityAdapter {
-            if (viewModel.selectedItem != null) {
-                navigateDetail()
-            }
             viewModel.selectedItem = it
+            navigateDetail()
         }
 
         binding.rvCities.adapter = cityListAdapter
@@ -81,19 +81,8 @@ class CityFragment : BaseFragment<CityViewModel, CityListFragmentBinding>(
         }
     }
 
-
     private fun navigateDetail() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            withContext(Dispatchers.IO) {
-                val data = DistrictFragmentArgs(viewModel.selectedItem)
-            }
-            withContext(Dispatchers.Main) {
-                val data = DistrictFragmentArgs(viewModel.selectedItem)
-                findNavController().navigate(R.id.districtFragment, data.toBundle())
-            }
-        }
+        val data = DistrictFragmentArgs(viewModel.selectedItem)
+        findNavController().navigate(R.id.districtFragment, data.toBundle())
     }
-
-
-
 }

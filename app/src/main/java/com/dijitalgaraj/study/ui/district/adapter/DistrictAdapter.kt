@@ -14,11 +14,11 @@ class DistrictAdapter (private val onClickItem:(String) -> Unit) :
     inner class DistrictAdapterViewHolder(private val binding: DistrictItemBinding) : RecyclerView.ViewHolder(
         binding.root
     ) {
+        var color:String? = null
         fun bind(item: String) {
             binding.apply {
                 txtDistrictName.text = item
                 root.setOnClickListener {
-
                     onClickItem.invoke(item)
                 }
             }

@@ -16,10 +16,9 @@ class DistrictFragment : BaseFragment<DistrictViewModel, DistrictListFragmentBin
     override val bindingInflater: (LayoutInflater, ViewGroup?, Boolean) -> DistrictListFragmentBinding =
         DistrictListFragmentBinding::inflate
 
-    private var boardAdapter: BoardAdapter?=null
+    private var boardAdapter: BoardAdapter? = null
 
     override fun init() {
-        super.init()
         getData()
         setupAdapter()
         setupClickListeners()
@@ -32,7 +31,7 @@ class DistrictFragment : BaseFragment<DistrictViewModel, DistrictListFragmentBin
         }
     }
 
-    private fun getData(){
+    private fun getData() {
         viewModel.place = arguments?.getParcelable("place")
         binding.txtTitleCity.text = viewModel.place?.title
         setupAdapter()
@@ -51,7 +50,7 @@ class DistrictFragment : BaseFragment<DistrictViewModel, DistrictListFragmentBin
         boardAdapter?.submitList(listOf(BoardItems.DistrictItem(viewModel.place?.places)))
     }
 
-    private fun setupClickListeners(){
+    private fun setupClickListeners() {
         binding.apply {
             viewBack.setOnClickListener {
                 findNavController().popBackStack()

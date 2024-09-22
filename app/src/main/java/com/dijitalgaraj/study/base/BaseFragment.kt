@@ -8,7 +8,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.viewbinding.ViewBinding
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -37,17 +36,17 @@ abstract class BaseFragment<out ViewModel : BaseViewModel<BaseActionState>, Bind
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            viewModel.actionState
+                .map { it.getContentIfNotHandled() }
+                .onEach { actionState ->
+                    renderActionState(actionState)
+                }
+                .launchIn(this)
 
-        viewModel.actionState
-            .map { it.getContentIfNotHandled() }
-            .onEach { actionState ->
-                renderActionState(actionState)
-            }
-            .launchIn(viewLifecycleOwner.lifecycleScope)
-
-        init()
+            init()
+        }
     }
-
     open fun init() {}
 
     abstract fun renderActionState(actionState: BaseActionState?)
